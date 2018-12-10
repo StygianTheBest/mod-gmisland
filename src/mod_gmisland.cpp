@@ -55,8 +55,8 @@ other GM Island related content.
 #include "Player.h"
 #include <cstring>
 
-bool GMIslandAnnounceModule = 1;
-uint32 GMIslandCooldown = 25;
+bool GMIAnnounce = true;
+uint32 GMICooldown = 25;
 
 namespace Tools
 {
@@ -95,7 +95,7 @@ class GMIslandConfig : public WorldScript
 {
 public:
 
-    GMIslandConfig() : WorldScript("GMIslandConfig_conf") { }
+    GMIslandConfig() : WorldScript("GMIslandConfig") { }
 
     void OnBeforeConfigLoad(bool reload) override
     {
@@ -109,9 +109,16 @@ public:
             sConfigMgr->LoadMore(cfg_def_file.c_str());
             sConfigMgr->LoadMore(cfg_file.c_str());
 
-            GMIslandAnnounceModule = sConfigMgr->GetBoolDefault("GMIsland.Announce", 1);
-            GMIslandCooldown = sConfigMgr->GetIntDefault("GMIsland.Cooldown", 25);
+            // Load Configuration Settings
+            SetInitialWorldSettings();
         }
+    }
+
+    // Load Configuration Settings
+    void SetInitialWorldSettings()
+    {
+        GMICooldown = sConfigMgr->GetIntDefault("GMI.Cooldown", 25);
+        GMIAnnounce = sConfigMgr->GetBoolDefault("GMI.Announce", true);
     }
 };
 
@@ -125,7 +132,7 @@ public:
     void OnLogin(Player* player)
     {
         // Announce Module
-        if (GMIslandAnnounceModule = true)
+        if (GMIAnnounce)
         {
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00GMIsland |rmodule.");
         }
@@ -146,7 +153,7 @@ public:
         }
         else
         {
-            if (GetCooldown() >= GMIslandCooldown || GetCooldown() == 0)
+            if (GetCooldown() >= GMICooldown || GetCooldown() == 0)
             {
                 if (QueryResult t_query = WorldDatabase.PQuery("SELECT `id`, `name` FROM `gmi_themes` WHERE `id` > 0 AND `available` = 1"))
                 {
@@ -161,7 +168,7 @@ public:
             {
                 char message[255];
 
-                sprintf(message, "You can do that in exactly %u seconds!", (GMIslandCooldown - GetCooldown()));
+                sprintf(message, "You can do that in exactly %u seconds!", (GMICooldown - GetCooldown()));
 
                 player->ADD_GOSSIP_ITEM(0, message, GOSSIP_SENDER_MAIN, 0);
             }
@@ -191,7 +198,7 @@ public:
                     float rot2 = std::sin(ang / 2);
                     float rot3 = std::cos(ang / 2);
 
-                    creature->SummonGameObject(ts_fields[0].GetUInt32(), ts_fields[1].GetFloat(), ts_fields[2].GetFloat(), ts_fields[3].GetFloat(), ang, 0, 0, rot2, rot3, GMIslandCooldown);
+                    creature->SummonGameObject(ts_fields[0].GetUInt32(), ts_fields[1].GetFloat(), ts_fields[2].GetFloat(), ts_fields[3].GetFloat(), ang, 0, 0, rot2, rot3, GMICooldown);
                 } while (ts_query->NextRow());
 
                 if (QueryResult tn_query = WorldDatabase.PQuery("SELECT `name` FROM `gmi_themes` WHERE `id` = %u LIMIT 1", action))
