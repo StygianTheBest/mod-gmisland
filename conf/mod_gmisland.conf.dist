@@ -13,14 +13,8 @@
 #	G M    I S L A N D
 ###################################################################################################
 
-#
 # Announce the module when the player logs in? (default: 0)
-#
+GMI.Announce = 1
 
-GMIsland.Announce = 1
-
-#
 # Set the duration of the theme display (default: 25)
-#
-
-GMIsland.Cooldown = 25
+GMI.Cooldown = 25
